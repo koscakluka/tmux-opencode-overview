@@ -51,27 +51,25 @@ render() {
   fi
 
   frame+="$(printf '%s\n' "$data" | awk -F '\t' '
+    BEGIN {
+      orange = "\033[38;5;208m"
+      reset = "\033[0m"
+    }
+
     {
       session = $1
-      unread = $3 + 0
-      running = $4 + 0
+      updated_at = $2 + 0
+      display = session
 
-      marker = "-"
-      if (unread > 0 && running == 1) {
-        marker = "!*"
-      } else if (unread > 0) {
-        marker = "!"
-      } else if (running == 1) {
-        marker = "*"
+      if (updated_at > 0) {
+        display = orange session "*" reset
       }
 
-      printf "%-2d %-24s %-2s\n", NR, session, marker
+      printf "%-2d %s\n", NR, display
     }
 
     END {
       print ""
-      print "Markers: ! unread update, * running OpenCode"
-      print "Newest updates are shown first; then newest session creation."
       print "Keys: 1-9 jump, s selector, q hide"
     }
   ')"
