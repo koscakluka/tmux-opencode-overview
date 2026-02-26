@@ -51,16 +51,8 @@ render() {
   fi
 
   frame+="$(printf '%s\n' "$data" | awk -F '\t' '
-    function when(ts) {
-      if (ts <= 0) {
-        return "never"
-      }
-      return ts
-    }
-
     {
       session = $1
-      updated_at = $2 + 0
       unread = $3 + 0
       running = $4 + 0
 
@@ -73,7 +65,7 @@ render() {
         marker = "*"
       }
 
-      printf "%-2d %-24s %-2s last:%s\n", NR, session, marker, when(updated_at)
+      printf "%-2d %-24s %-2s\n", NR, session, marker
     }
 
     END {
