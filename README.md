@@ -5,7 +5,7 @@ tmux sidebar plugin for tracking OpenCode activity across sessions.
 ## Features
 
 - Sidebar with sessions that match a process pattern (`opencode|codex` by default).
-- Sidebar includes sessions that have a matching running process and/or OpenCode notifications.
+- Sidebar includes sessions that have a matching running process and/or unread OpenCode notifications.
 - Unread updates show as an orange `*` next to the session name and clear when the session is focused.
 - Notification messages (when provided) are shown on the line under the session name.
 - Session ordering:

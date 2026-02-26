@@ -114,7 +114,7 @@ awk -F '\t' -v OFS='\t' \
         unread_count = (session in unread) ? unread[session] : 0
         message = (session in last_message) ? last_message[session] : ""
 
-        include = (instance || updated_at > 0)
+        include = (instance || unread_count > 0)
 
         if (include) {
           if (message != "") {
