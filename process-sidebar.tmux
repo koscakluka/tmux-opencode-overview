@@ -61,6 +61,33 @@ main() {
     tmux bind-key "$select_key" display-popup -w 70% -h 80% -E "$PLUGIN_DIR/scripts/select.sh"
   fi
 
+  local notify_alias
+  local notify_index
+  local used_indices
+  local in_use
+
+  notify_alias="oc-notify=run-shell '$PLUGIN_DIR/scripts/notify.sh'"
+  notify_index="$(tmux show-options -s command-alias 2>/dev/null | awk -F '[][]' 'index($0, "oc-notify=") { print $2; exit }')"
+
+  if [ -z "$notify_index" ]; then
+    used_indices="$(tmux show-options -s command-alias 2>/dev/null | awk -F '[][]' '/command-alias\[[0-9]+\]/ { print $2 }')"
+    notify_index='90'
+
+    while [ "$notify_index" -le 200 ]; do
+      in_use="$(printf '%s\n' "$used_indices" | awk -v idx="$notify_index" '$1 == idx { print 1; exit }')"
+      if [ -z "$in_use" ]; then
+        break
+      fi
+      notify_index=$((notify_index + 1))
+    done
+  fi
+
+  if [ "$notify_index" -gt 200 ]; then
+    notify_index='250'
+  fi
+
+  tmux set-option -sq "command-alias[$notify_index]" "$notify_alias"
+
   local bound_select_keys
   local key
 

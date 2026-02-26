@@ -38,6 +38,12 @@ Use this command from OpenCode or a wrapper to signal an update:
 ~/.config/tmux/plugins/process-sidebar/scripts/notify.sh [session_name] [message]
 ```
 
+From tmux command prompt, you can also run:
+
+```tmux
+oc-notify
+```
+
 - If `session_name` is omitted, it uses the current tmux session.
 - Notification state is stored in `updates.tsv`.
 
