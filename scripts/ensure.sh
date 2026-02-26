@@ -5,11 +5,11 @@ set -euo pipefail
 SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 . "$SCRIPT_DIR/lib.sh"
 
-session_has_sidebar() {
-  local session="$1"
+window_has_sidebar() {
+  local window_id="$1"
 
-  tmux list-panes -a -F '#{session_name} #{pane_title}' 2>/dev/null |
-    awk -v session_name="$session" '$1 == session_name && $2 == "opencode-sidebar" { found=1 } END { exit(found ? 0 : 1) }'
+  tmux list-panes -t "$window_id" -F '#{pane_title}' 2>/dev/null |
+    awk '$1 == "opencode-sidebar" { found=1 } END { exit(found ? 0 : 1) }'
 }
 
 main() {
@@ -19,7 +19,6 @@ main() {
   local width
   local side
   local window_id
-  local session_name
   local pane_id
 
   client_tty="${1:-}"
@@ -31,16 +30,13 @@ main() {
 
   if [ -n "$client_tty" ]; then
     window_id="$(tmux display-message -p -t "$client_tty" '#{window_id}' 2>/dev/null || true)"
-    session_name="$(tmux display-message -p -t "$client_tty" '#{session_name}' 2>/dev/null || true)"
   else
     window_id="$(tmux display-message -p '#{window_id}' 2>/dev/null || true)"
-    session_name="$(tmux display-message -p '#{session_name}' 2>/dev/null || true)"
   fi
 
   [ -n "$window_id" ] || exit 0
-  [ -n "$session_name" ] || exit 0
 
-  if session_has_sidebar "$session_name"; then
+  if window_has_sidebar "$window_id"; then
     exit 0
   fi
 

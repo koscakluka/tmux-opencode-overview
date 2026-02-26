@@ -82,6 +82,8 @@ main() {
 
   tmux set-hook -g client-session-changed "run-shell '$PLUGIN_DIR/scripts/ensure.sh \"#{client_tty}\"'"
   tmux set-hook -g client-attached "run-shell '$PLUGIN_DIR/scripts/ensure.sh \"#{client_tty}\"'"
+  tmux set-hook -g after-select-window "run-shell '$PLUGIN_DIR/scripts/ensure.sh'"
+  tmux set-hook -g after-new-window "run-shell '$PLUGIN_DIR/scripts/ensure.sh'"
 
   "$PLUGIN_DIR/scripts/ensure.sh" >/dev/null 2>&1 || true
 }
