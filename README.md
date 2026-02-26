@@ -24,7 +24,7 @@ All options are global tmux options.
 - `@process_sidebar_sticky` (default: `on`, keep sidebar open when session changes)
 - `@process_sidebar_toggle_key` (default: `I`)
 - `@process_sidebar_toggle_key_alt` (default: `i`)
-- `@process_sidebar_select_key` (default: `G`)
+- `@process_sidebar_select_key` (default: `g`)
 - `@process_sidebar_auto_read` (default: `on`)
 - `@process_sidebar_indicator_hide_zero` (default: `off`)
 - `@process_sidebar_state_dir` (default: `~/.local/state/tmux-process-sidebar`)
@@ -47,13 +47,7 @@ Default key bindings after plugin load:
 
 - `prefix + I`: toggle sidebar pane
 - `prefix + i`: toggle sidebar pane (alternate)
-- `prefix + G`: choose a session and switch client
-
-## Marker legend in sidebar
-
-- `!` unread update
-- `*` process match currently running
-- `!*` both
+- `prefix + g`: choose a session and switch client
 
 ## Sidebar pane controls
 

@@ -28,7 +28,7 @@ main() {
   set_default "@process_sidebar_sticky" "on"
   set_default "@process_sidebar_toggle_key" "I"
   set_default "@process_sidebar_toggle_key_alt" "i"
-  set_default "@process_sidebar_select_key" "G"
+  set_default "@process_sidebar_select_key" "g"
   set_default "@process_sidebar_auto_read" "on"
   set_default "@process_sidebar_indicator_hide_zero" "off"
   set_default "@process_sidebar_state_dir" "$HOME/.local/state/tmux-process-sidebar"
@@ -44,6 +44,11 @@ main() {
   toggle_key_alt="$(get_option "@process_sidebar_toggle_key_alt")"
   select_key="$(get_option "@process_sidebar_select_key")"
 
+  if [ "$select_key" = "G" ]; then
+    select_key="g"
+    tmux set-option -gq "@process_sidebar_select_key" "$select_key"
+  fi
+
   if [ -n "$toggle_key" ]; then
     tmux bind-key "$toggle_key" run-shell "$PLUGIN_DIR/scripts/toggle.sh"
   fi
@@ -53,8 +58,18 @@ main() {
   fi
 
   if [ -n "$select_key" ]; then
-    tmux bind-key "$select_key" run-shell "$PLUGIN_DIR/scripts/select.sh"
+    tmux bind-key "$select_key" display-popup -w 70% -h 80% -E "$PLUGIN_DIR/scripts/select.sh"
   fi
+
+  local bound_select_keys
+  local key
+
+  bound_select_keys="$(tmux list-keys -T prefix 2>/dev/null | awk -v script="$PLUGIN_DIR/scripts/select.sh" '$1 == "bind-key" && $2 == "-T" && $3 == "prefix" && $5 == "display-popup" && $NF == script { print $4 }')"
+  for key in $bound_select_keys; do
+    if [ "$key" != "$select_key" ]; then
+      tmux unbind-key "$key" >/dev/null 2>&1 || true
+    fi
+  done
 
   legacy_mode_key="$(tmux list-keys -T prefix 2>/dev/null | awk -v script="$PLUGIN_DIR/scripts/toggle-mode.sh" '$1 == "bind-key" && $2 == "-T" && $3 == "prefix" && $5 == "run-shell" && $6 == script { print $4; exit }')"
   if [ -n "$legacy_mode_key" ]; then

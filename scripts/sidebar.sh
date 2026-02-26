@@ -33,7 +33,7 @@ render() {
   local frame
 
   toggle_key="$(get_tmux_option "@process_sidebar_toggle_key" "I")"
-  select_key="$(get_tmux_option "@process_sidebar_select_key" "G")"
+  select_key="$(get_tmux_option "@process_sidebar_select_key" "g")"
   printf -v frame 'OpenCode Sidebar\ntoggle:%s  select:%s\n\n' "$toggle_key" "$select_key"
 
   data="$($SCRIPT_DIR/collect.sh)"
