@@ -58,14 +58,18 @@ render() {
 
     {
       session = $1
-      updated_at = $2 + 0
+      unread = $3 + 0
+      message = (NF >= 6) ? $6 : ""
       display = session
 
-      if (updated_at > 0) {
+      if (unread > 0) {
         display = orange session "*" reset
       }
 
       printf "%-2d %s\n", NR, display
+      if (unread > 0 && message != "") {
+        printf "   %s\n", message
+      }
     }
 
     END {

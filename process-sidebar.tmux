@@ -31,6 +31,7 @@ main() {
   set_default "@process_sidebar_select_key" "g"
   set_default "@process_sidebar_auto_read" "on"
   set_default "@process_sidebar_indicator_hide_zero" "off"
+  set_default "@process_sidebar_default_message" "update"
   set_default "@process_sidebar_state_dir" "$HOME/.local/state/tmux-process-sidebar"
 
   tmux set-option -gq "@process_sidebar_mode" "both"
@@ -62,17 +63,22 @@ main() {
   fi
 
   local notify_alias
+  local notify_msg_alias
   local notify_index
+  local notify_msg_index
   local used_indices
   local in_use
+  local after_set_option_hooks
 
-  notify_alias="oc-notify=run-shell '$PLUGIN_DIR/scripts/notify.sh'"
+  notify_alias="oc-notify=run-shell '$PLUGIN_DIR/scripts/notify-current.sh'"
+  notify_msg_alias="oc-notify-msg=set-option -gq @process_sidebar_pending_message"
   notify_index="$(tmux show-options -s command-alias 2>/dev/null | awk -F '[][]' 'index($0, "oc-notify=") { print $2; exit }')"
+  notify_msg_index="$(tmux show-options -s command-alias 2>/dev/null | awk -F '[][]' 'index($0, "oc-notify-msg=") { print $2; exit }')"
+
+  used_indices="$(tmux show-options -s command-alias 2>/dev/null | awk -F '[][]' '/command-alias\[[0-9]+\]/ { print $2 }')"
 
   if [ -z "$notify_index" ]; then
-    used_indices="$(tmux show-options -s command-alias 2>/dev/null | awk -F '[][]' '/command-alias\[[0-9]+\]/ { print $2 }')"
     notify_index='90'
-
     while [ "$notify_index" -le 200 ]; do
       in_use="$(printf '%s\n' "$used_indices" | awk -v idx="$notify_index" '$1 == idx { print 1; exit }')"
       if [ -z "$in_use" ]; then
@@ -85,8 +91,33 @@ main() {
   if [ "$notify_index" -gt 200 ]; then
     notify_index='250'
   fi
-
   tmux set-option -sq "command-alias[$notify_index]" "$notify_alias"
+
+  if [ -z "$notify_msg_index" ]; then
+    notify_msg_index='91'
+    while [ "$notify_msg_index" -le 200 ]; do
+      if [ "$notify_msg_index" = "$notify_index" ]; then
+        notify_msg_index=$((notify_msg_index + 1))
+        continue
+      fi
+
+      in_use="$(printf '%s\n' "$used_indices" | awk -v idx="$notify_msg_index" '$1 == idx { print 1; exit }')"
+      if [ -z "$in_use" ]; then
+        break
+      fi
+      notify_msg_index=$((notify_msg_index + 1))
+    done
+  fi
+
+  if [ "$notify_msg_index" -gt 200 ]; then
+    notify_msg_index='251'
+  fi
+  tmux set-option -sq "command-alias[$notify_msg_index]" "$notify_msg_alias"
+
+  after_set_option_hooks="$(tmux show-hooks -g after-set-option 2>/dev/null || true)"
+  if ! printf '%s\n' "$after_set_option_hooks" | awk -v script="$PLUGIN_DIR/scripts/consume-pending-notify.sh" 'index($0, script) { found=1 } END { exit(found ? 0 : 1) }'; then
+    tmux set-hook -ag after-set-option "run-shell '$PLUGIN_DIR/scripts/consume-pending-notify.sh \"#{hook_session_name}\"'"
+  fi
 
   local bound_select_keys
   local key
@@ -122,12 +153,12 @@ main() {
       ;;
   esac
 
-  tmux set-hook -g client-session-changed "run-shell '$PLUGIN_DIR/scripts/ensure.sh \"#{client_tty}\"'"
-  tmux set-hook -g client-attached "run-shell '$PLUGIN_DIR/scripts/ensure.sh \"#{client_tty}\"'"
-  tmux set-hook -g after-select-window "run-shell '$PLUGIN_DIR/scripts/ensure.sh'"
-  tmux set-hook -g after-new-window "run-shell '$PLUGIN_DIR/scripts/ensure.sh'"
+  tmux set-hook -g client-session-changed "run-shell '$PLUGIN_DIR/scripts/on-focus.sh \"#{client_tty}\" \"#{session_name}\"'"
+  tmux set-hook -g client-attached "run-shell '$PLUGIN_DIR/scripts/on-focus.sh \"#{client_tty}\" \"#{session_name}\"'"
+  tmux set-hook -g after-select-window "run-shell '$PLUGIN_DIR/scripts/on-focus.sh \"\" \"#{session_name}\"'"
+  tmux set-hook -g after-new-window "run-shell '$PLUGIN_DIR/scripts/on-focus.sh \"\" \"#{session_name}\"'"
 
-  "$PLUGIN_DIR/scripts/ensure.sh" >/dev/null 2>&1 || true
+  "$PLUGIN_DIR/scripts/on-focus.sh" "" "$(tmux display-message -p '#{session_name}' 2>/dev/null || true)" >/dev/null 2>&1 || true
 }
 
 main "$@"

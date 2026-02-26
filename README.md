@@ -6,6 +6,8 @@ tmux sidebar plugin for tracking OpenCode activity across sessions.
 
 - Sidebar with sessions that match a process pattern (`opencode|codex` by default).
 - Sidebar includes sessions that have a matching running process and/or OpenCode notifications.
+- Unread updates show as an orange `*` next to the session name and clear when the session is focused.
+- Notification messages (when provided) are shown on the line under the session name.
 - Session ordering:
   - newest notification first
   - then newest session creation time
@@ -27,6 +29,7 @@ All options are global tmux options.
 - `@process_sidebar_select_key` (default: `g`)
 - `@process_sidebar_auto_read` (default: `on`)
 - `@process_sidebar_indicator_hide_zero` (default: `off`)
+- `@process_sidebar_default_message` (default: `update`)
 - `@process_sidebar_state_dir` (default: `~/.local/state/tmux-process-sidebar`)
 - `@process_sidebar_state_file` (optional explicit file path)
 
@@ -42,9 +45,19 @@ From tmux command prompt, you can also run:
 
 ```tmux
 oc-notify
+oc-notify-msg "custom message"
+```
+
+Or directly from shell:
+
+```bash
+tmux oc-notify
+tmux oc-notify-msg "custom message"
 ```
 
 - If `session_name` is omitted, it uses the current tmux session.
+- `message` is optional.
+- `oc-notify` uses `@process_sidebar_default_message`.
 - Notification state is stored in `updates.tsv`.
 
 ## Keys

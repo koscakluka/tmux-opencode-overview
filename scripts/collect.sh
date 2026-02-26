@@ -98,6 +98,11 @@ awk -F '\t' -v OFS='\t' \
       if (NF >= 3) {
         last_update[$1] = $2 + 0
         unread[$1] = $3 + 0
+        if (NF >= 4) {
+          last_message[$1] = $4
+        } else {
+          last_message[$1] = ""
+        }
       }
       next
     }
@@ -107,11 +112,16 @@ awk -F '\t' -v OFS='\t' \
         instance = (session in has_instance) ? 1 : 0
         updated_at = (session in last_update) ? last_update[session] : 0
         unread_count = (session in unread) ? unread[session] : 0
+        message = (session in last_message) ? last_message[session] : ""
 
         include = (instance || updated_at > 0)
 
         if (include) {
-          printf "%s\t%d\t%d\t%d\t%d\n", session, updated_at, unread_count, instance, created[session]
+          if (message != "") {
+            printf "%s\t%d\t%d\t%d\t%d\t%s\n", session, updated_at, unread_count, instance, created[session], message
+          } else {
+            printf "%s\t%d\t%d\t%d\t%d\n", session, updated_at, unread_count, instance, created[session]
+          }
         }
       }
     }

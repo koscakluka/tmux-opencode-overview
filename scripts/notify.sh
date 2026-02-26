@@ -27,7 +27,7 @@ main() {
   if [ "$#" -gt 0 ]; then
     message="$*"
   else
-    message='update'
+    message=''
   fi
 
   message="$(printf '%s' "$message" | tr '\t\n' '  ')"
@@ -43,7 +43,11 @@ main() {
 
     NF >= 1 {
       if ($1 == target) {
-        print target, ts, 1, msg
+        if (msg != "") {
+          print target, ts, 1, msg
+        } else {
+          print target, ts, 1
+        }
         updated = 1
         next
       }
@@ -57,7 +61,11 @@ main() {
 
     END {
       if (!updated) {
-        print target, ts, 1, msg
+        if (msg != "") {
+          print target, ts, 1, msg
+        } else {
+          print target, ts, 1
+        }
       }
     }
   ' "$state_file" > "$tmp_file"
