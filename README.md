@@ -46,6 +46,7 @@ From tmux command prompt, you can also run:
 ```tmux
 oc-notify
 oc-notify-msg "custom message"
+oc-notify-msg "--session=my-session --msg=custom message"
 ```
 
 Or directly from shell:
@@ -53,11 +54,13 @@ Or directly from shell:
 ```bash
 tmux oc-notify
 tmux oc-notify-msg "custom message"
+tmux oc-notify-msg "--session=my-session --msg=custom message"
 ```
 
 - If `session_name` is omitted, it uses the current tmux session.
 - `message` is optional.
 - `oc-notify` uses `@process_sidebar_default_message`.
+- `oc-notify-msg` supports `--session=<name>` with optional `--msg=<text>`.
 - Notification state is stored in `updates.tsv`.
 
 ## Keys
