@@ -9,7 +9,8 @@ tmux sidebar plugin for tracking OpenCode activity across sessions.
 - Unread updates show as an orange `*` next to the session name and clear when the session is focused.
 - Notification messages (when provided) are shown on the line under the session name.
 - Session ordering:
-  - newest notification first
+  - unread sessions first
+  - then newest notification time
   - then newest session creation time
 - Selection flow (`fzf`): quickly switch to a session from the sorted list.
 - Status indicator (`OC !N`): shows unread notification count.

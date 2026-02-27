@@ -126,4 +126,4 @@ awk -F '\t' -v OFS='\t' \
       }
     }
   ' "$tmp_dir/sessions.tsv" "$tmp_dir/instances.tsv" "$tmp_dir/updates.tsv" |
-  sort -t "$(printf '\t')" -k2,2nr -k5,5nr -k1,1
+  sort -t "$(printf '\t')" -k3,3nr -k2,2nr -k5,5nr -k1,1
